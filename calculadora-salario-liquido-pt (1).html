@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Salário Líquido — Portugal 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F4F1E6;
+    --paper-2: #ECE7D6;
+    --ink: #1C231D;
+    --ink-soft: #4A5147;
+    --green: #1F4D3A;
+    --green-2: #2E6B4F;
+    --sage: #9FAE9A;
+    --terracotta: #A63A2E;
+    --line: #D8D2BC;
+    --gold: #B8923E;
+    --card: #FFFDF6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:36px 24px 80px;
+  }
+  header.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:28px;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--green-2);
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(28px,4vw,42px);
+    margin:0;
+    line-height:1.05;
+    letter-spacing:-0.01em;
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--green);
+  }
+  .top-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-align:right;
+    line-height:1.6;
+  }
+  .top-meta strong{ color:var(--ink); }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1.15fr 1fr;
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width:920px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:26px 26px 30px;
+  }
+  .panel + .panel{margin-top:22px;}
+
+  .panel h2{
+    font-family:'Fraunces',serif;
+    font-size:17px;
+    font-weight:600;
+    margin:0 0 4px;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .panel h2 .idx{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--gold);
+    font-weight:600;
+  }
+  .panel .hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 18px;
+    line-height:1.5;
+  }
+
+  .field{ margin-bottom:16px; }
+  .field:last-child{ margin-bottom:0; }
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .field .sub{
+    font-weight:400;
+    color:var(--ink-soft);
+    font-size:11.5px;
+  }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+
+  input[type=number], select{
+    width:100%;
+    padding:10px 12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14.5px;
+    border:1.5px solid var(--line);
+    border-radius:2px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  select{ font-family:'Inter',sans-serif; font-size:13.5px; cursor:pointer; }
+  input[type=number]:focus, select:focus{ border-color:var(--green-2); }
+
+  .toggle-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .toggle-row button{
+    flex:1;
+    min-width:90px;
+    padding:9px 10px;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    border:1.5px solid var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+    border-radius:2px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .toggle-row button.active{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  .toggle-row button:hover:not(.active){ border-color:var(--green-2); color:var(--green-2); }
+
+  .check-line{
+    display:flex; align-items:center; gap:9px;
+    font-size:13px; color:var(--ink);
+    cursor:pointer;
+  }
+  .check-line input{ width:16px; height:16px; accent-color:var(--green); cursor:pointer; }
+
+  /* ============ OUTPUT / RECEIPT ============ */
+  .receipt{
+    background:var(--card);
+    border:1px solid var(--ink);
+    position:relative;
+    padding:0;
+    overflow:hidden;
+  }
+  .receipt-head{
+    background:var(--green);
+    color:#fff;
+    padding:20px 26px;
+    position:relative;
+  }
+  .receipt-head .brand-eyebrow{ color:#CFE0D3; }
+  .receipt-head h2{
+    font-family:'Fraunces',serif;
+    font-size:19px;
+    margin:2px 0 0;
+    font-weight:600;
+  }
+  .receipt-body{ padding:22px 26px 26px; }
+
+  .line{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:8px 0;
+    border-bottom:1px dashed var(--line);
+    font-size:13.5px;
+  }
+  .line .lbl{ color:var(--ink-soft); }
+  .line .lbl .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--gold);
+    margin-left:6px;
+  }
+  .line .val{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .line.deduct .val{ color:var(--terracotta); }
+  .line.total{
+    border-bottom:none;
+    border-top:2px solid var(--ink);
+    margin-top:6px;
+    padding-top:14px;
+  }
+  .line.total .lbl{
+    color:var(--ink);
+    font-weight:700;
+    font-size:14px;
+  }
+  .line.total .val{
+    font-size:22px;
+    color:var(--green);
+  }
+
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:20px;
+  }
+  .compare-card{
+    border:1.5px solid var(--line);
+    padding:16px 16px 18px;
+    position:relative;
+    background:#FBFAF3;
+  }
+  .compare-card.highlight{ border-color:var(--green); background:#F0F5EE; }
+  .compare-card .cc-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .compare-card .cc-value{
+    font-family:'Fraunces',serif;
+    font-size:26px;
+    font-weight:600;
+    color:var(--ink);
+    line-height:1;
+  }
+  .compare-card.highlight .cc-value{ color:var(--green); }
+  .compare-card .cc-sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  /* stamp */
+  .stamp{
+    position:absolute;
+    top:16px;
+    right:22px;
+    width:88px;
+    height:88px;
+    border:2.5px solid #fff;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(-9deg);
+    opacity:.9;
+  }
+  .stamp span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:#fff;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    text-align:center;
+    line-height:1.5;
+  }
+
+  .annual-box{
+    margin-top:20px;
+    padding:16px 18px;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .annual-box .al{ font-size:12.5px; color:var(--ink-soft); }
+  .annual-box .al strong{ display:block; color:var(--ink); font-family:'Fraunces',serif; font-size:15px; font-weight:600;}
+  .annual-box .av{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:19px;
+    font-weight:600;
+    color:var(--green);
+  }
+
+  .employer-note{
+    margin-top:18px;
+    font-size:12px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .employer-note b{ color:var(--ink); }
+
+  .table-tag{
+    display:inline-block;
+    margin-top:14px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    background:var(--ink);
+    color:var(--paper);
+    padding:4px 9px;
+    border-radius:2px;
+  }
+
+  footer.disclaimer{
+    margin-top:34px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    line-height:1.7;
+  }
+  footer.disclaimer b{ color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <p class="brand-eyebrow">Simulador de vencimento · Continente</p>
+      <h1>Salário <em>líquido</em> em Portugal</h1>
+    </div>
+    <div class="top-meta">
+      Tabelas de retenção na fonte IRS <strong>2026</strong><br>
+      Taxa Social Única — trabalhador <strong>11%</strong> · entidade patronal <strong>23,75%</strong><br>
+      Retribuição mínima mensal garantida: <strong>920 €</strong>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ===================== INPUT COLUMN ===================== -->
+    <div class="input-col">
+
+      <div class="panel">
+        <h2><span class="idx">01</span> Rendimento</h2>
+        <p class="hint">Indique o salário base bruto mensal, antes de qualquer desconto.</p>
+
+        <div class="field">
+          <label>Salário bruto mensal (€)</label>
+          <input type="number" id="gross" value="1500" min="0" step="10">
+        </div>
+
+        <div class="field">
+          <label>Número de pagamentos por ano <span class="sub">— subsídio de férias e de Natal</span></label>
+          <div class="toggle-row" id="payments-toggle">
+            <button data-val="14" class="active">14 pagamentos</button>
+            <button data-val="12">12 pagamentos</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="idx">02</span> Situação familiar</h2>
+        <p class="hint">Determina qual das tabelas de retenção do IRS é aplicada (Continente).</p>
+
+        <div class="field">
+          <label>Estado civil / titularidade</label>
+          <select id="marital">
+            <option value="single">Não casado(a) / divorciado(a) / viúvo(a)</option>
+            <option value="married_two_incomes" selected>Casado(a) — dois titulares (ambos têm rendimentos)</option>
+            <option value="married_one_income">Casado(a) — único titular</option>
+          </select>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Nº de dependentes</label>
+            <input type="number" id="dependents" value="0" min="0" max="10" step="1">
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <label class="check-line"><input type="checkbox" id="disabled"> Deficiência fiscalmente relevante (≥60%)</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="idx">03</span> Subsídio de alimentação</h2>
+        <p class="hint">Opcional. A parte que exceder o limite legal isento entra na base tributável de IRS e SS.</p>
+
+        <div class="row3">
+          <div class="field">
+            <label>Valor diário (€)</label>
+            <input type="number" id="meal-daily" value="6.15" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Dias úteis / mês</label>
+            <input type="number" id="workdays" value="22" min="0" max="31" step="1">
+          </div>
+          <div class="field">
+            <label>Forma de pagamento</label>
+            <select id="meal-method">
+              <option value="cash">Dinheiro / vencimento</option>
+              <option value="card">Cartão refeição</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:2px;">Limite isento 2026 — dinheiro: 6,15 €/dia · cartão refeição: 10,46 €/dia.</p>
+      </div>
+
+      <div class="panel">
+        <h2><span class="idx">04</span> IRS Jovem</h2>
+        <p class="hint">Isenção parcial de IRS para quem está nos primeiros 10 anos de carreira, até aos 35 anos (artigo 12.º-B do CIRS). Limite anual de 55×IAS = 29.542,15 € em 2026.</p>
+
+        <label class="check-line" style="margin-bottom:14px;">
+          <input type="checkbox" id="jovem-enabled"> Aplicar IRS Jovem na retenção mensal
+        </label>
+
+        <div id="jovem-fields" style="display:none;">
+          <div class="row2">
+            <div class="field">
+              <label>Escalão de isenção</label>
+              <select id="jovem-tier">
+                <option value="1.00">1º ano — 100% isento</option>
+                <option value="0.75" selected>2º–4º ano — 75% isento</option>
+                <option value="0.50">5º–7º ano — 50% isento</option>
+                <option value="0.25">8º–10º ano — 25% isento</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Idade <span class="sub">(limite: 35 anos)</span></label>
+              <input type="number" id="jovem-age" value="26" min="16" max="99" step="1">
+            </div>
+          </div>
+          <p class="hint" id="jovem-warning" style="display:none; color:var(--terracotta);">A idade indicada está acima do limite de 35 anos para o IRS Jovem — confirme a elegibilidade.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="idx">05</span> Ajudas de custo</h2>
+        <p class="hint">Opcional. Compensações por deslocações ao serviço da entidade patronal. A parte que exceder os limites da função pública é tributada em IRS e Segurança Social.</p>
+
+        <div class="row2">
+          <div class="field">
+            <label>Valor diário pago (€)</label>
+            <input type="number" id="perdiem-daily" value="0" min="0" step="0.5">
+          </div>
+          <div class="field">
+            <label>Dias de deslocação / mês</label>
+            <input type="number" id="perdiem-days" value="0" min="0" max="31" step="1">
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Âmbito</label>
+            <select id="perdiem-scope">
+              <option value="national" selected>Deslocação nacional</option>
+              <option value="international">Deslocação ao estrangeiro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Categoria</label>
+            <select id="perdiem-role">
+              <option value="general" selected>Trabalhador em geral</option>
+              <option value="manager">Gerente / administrador</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" style="margin-top:-4px;">Limites isentos 2026 — nacional: 65,89 €/dia (geral) · 72,65 €/dia (gerente); estrangeiro: 148,91 €/dia (geral) · 167,07 €/dia (gerente).</p>
+
+        <div class="row2" style="margin-top:6px;">
+          <div class="field">
+            <label>Valor pago por km (€)</label>
+            <input type="number" id="km-rate" value="0" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Km percorridos / mês</label>
+            <input type="number" id="km-count" value="0" min="0" step="10">
+          </div>
+        </div>
+        <p class="hint" style="margin-top:-4px;">Limite isento viatura própria 2026: 0,40 €/km.</p>
+      </div>
+
+    </div>
+
+    <!-- ===================== OUTPUT COLUMN ===================== -->
+    <div class="output-col">
+      <div class="receipt">
+        <div class="receipt-head">
+          <p class="brand-eyebrow">Recibo estimado · mensal</p>
+          <h2>Discriminação do salário</h2>
+          <div class="stamp"><span>salário<br>líquido</span></div>
+        </div>
+        <div class="receipt-body">
+
+          <div class="line"><span class="lbl">Salário base bruto</span><span class="val" id="out-gross">—</span></div>
+          <div class="line"><span class="lbl">Subsídio de alimentação<span class="tag">isento + tributável</span></span><span class="val" id="out-meal">—</span></div>
+          <div class="line" id="row-perdiem" style="display:none;"><span class="lbl">Ajudas de custo<span class="tag">isento + tributável</span></span><span class="val" id="out-perdiem">—</span></div>
+          <div class="line" id="row-km" style="display:none;"><span class="lbl">Quilómetros (viatura própria)<span class="tag">isento + tributável</span></span><span class="val" id="out-km">—</span></div>
+          <div class="line"><span class="lbl">Rendimento tributável (base IRS/SS)</span><span class="val" id="out-base">—</span></div>
+          <div class="line deduct"><span class="lbl">Segurança Social (11%)</span><span class="val" id="out-ss">—</span></div>
+          <div class="line deduct" id="row-irs-normal"><span class="lbl">Retenção na fonte de IRS <span class="sub" id="irs-normal-note"></span></span><span class="val" id="out-irs-normal">—</span></div>
+          <div class="line" id="row-jovem" style="display:none;"><span class="lbl">Redução IRS Jovem</span><span class="val" id="out-jovem-reduction">—</span></div>
+          <div class="line deduct"><span class="lbl">IRS retido, final</span><span class="val" id="out-irs">—</span></div>
+
+          <div class="line total"><span class="lbl">Líquido a receber (com SS)</span><span class="val" id="out-net-with">—</span></div>
+
+          <span class="table-tag" id="out-tabletag">Tabela I</span>
+
+          <div class="compare">
+            <div class="compare-card highlight">
+              <div class="cc-label">Líquido · com desconto SS</div>
+              <div class="cc-value" id="cmp-with">—</div>
+              <div class="cc-sub">Salário − IRS − Seg. Social</div>
+            </div>
+            <div class="compare-card">
+              <div class="cc-label">Líquido · sem desconto SS</div>
+              <div class="cc-value" id="cmp-without">—</div>
+              <div class="cc-sub">Salário − IRS, apenas</div>
+            </div>
+          </div>
+
+          <div class="annual-box">
+            <div class="al">Anual líquido <strong id="out-annual-label">(14 pagamentos, com SS)</strong></div>
+            <div class="av" id="out-annual">—</div>
+          </div>
+
+          <div class="employer-note">
+            <b>Custo total para a entidade empregadora:</b> <span id="out-employer">—</span> / mês
+            (salário + subsídio de alimentação + TSU patronal de 23,75%).
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="disclaimer">
+    <b>Notas e âmbito.</b> Cálculo baseado nas tabelas oficiais de retenção na fonte de IRS para 2026 aplicáveis a
+    <b>Portugal Continental</b> (Despacho n.º 233-A/2026, de 6 de janeiro) e na taxa de Segurança Social do regime geral
+    de trabalhadores por conta de outrem (11% trabalhador / 23,75% entidade patronal). Inclui uma estimativa simplificada
+    do regime de IRS Jovem (artigo 12.º-B do CIRS) e das ajudas de custo isentas, mas não cobre Açores, Madeira, regime
+    de residente não habitual, ou situações de trabalho independente. Os subsídios de férias e de Natal são
+    estimados aplicando a mesma tabela de IRS ao valor do subsídio, tratado como um pagamento mensal autónomo — a
+    entidade empregadora pode aplicar a taxa efetiva de forma ligeiramente diferente. Este simulador é apenas indicativo
+    e não substitui o cálculo oficial da folha de vencimentos nem aconselhamento fiscal profissional.
+  </footer>
+
+</div>
+
+<script>
+// ---------- IRS withholding tables (Continente, 2026) ----------
+const TABLE_I = { // não casado sem dependentes ou casado dois titulares
+  brackets: [
+    {upTo:920,    rate:0,      parcela:()=>0},
+    {upTo:1042,   rate:0.1250, parcela:R=>0.1250*2.60*(1273.85-R)},
+    {upTo:1108,   rate:0.1570, parcela:R=>0.1570*1.35*(1554.83-R)},
+    {upTo:1154,   rate:0.1570, parcela:()=>94.71},
+    {upTo:1212,   rate:0.2120, parcela:()=>158.18},
+    {upTo:1819,   rate:0.2410, parcela:()=>193.33},
+    {upTo:2119,   rate:0.3110, parcela:()=>320.66},
+    {upTo:2499,   rate:0.3490, parcela:()=>401.19},
+    {upTo:3305,   rate:0.3836, parcela:()=>487.66},
+    {upTo:5547,   rate:0.3969, parcela:()=>531.62},
+    {upTo:20221,  rate:0.4495, parcela:()=>823.40},
+    {upTo:Infinity,rate:0.4717,parcela:()=>1272.31},
+  ],
+  depAdd: 21.43
+};
+const TABLE_II = { // não casado com um ou mais dependentes
+  brackets: TABLE_I.brackets,
+  depAdd: 34.29
+};
+const TABLE_III = { // casado, único titular
+  brackets: [
+    {upTo:991,    rate:0,      parcela:()=>0},
+    {upTo:1042,   rate:0.1250, parcela:R=>0.1250*2.60*(1372.15-R)},
+    {upTo:1108,   rate:0.1250, parcela:R=>0.1250*1.35*(1677.85-R)},
+    {upTo:1119,   rate:0.1250, parcela:()=>96.17},
+    {upTo:1432,   rate:0.1272, parcela:()=>98.64},
+    {upTo:1962,   rate:0.1570, parcela:()=>141.32},
+    {upTo:2240,   rate:0.1938, parcela:()=>213.53},
+    {upTo:2773,   rate:0.2277, parcela:()=>289.47},
+    {upTo:3389,   rate:0.2570, parcela:()=>370.72},
+    {upTo:5965,   rate:0.2881, parcela:()=>476.12},
+    {upTo:20265,  rate:0.3843, parcela:()=>1049.96},
+    {upTo:Infinity,rate:0.4717,parcela:()=>2821.13},
+  ],
+  depAdd: 42.86
+};
+const TABLE_IV = { // não casado ou casado dois titulares sem dependentes — deficiência
+  brackets: [
+    {upTo:1694,   rate:0,      parcela:()=>0},
+    {upTo:2063,   rate:0.2120, parcela:()=>359.13},
+    {upTo:2492,   rate:0.3110, parcela:()=>563.37},
+    {upTo:4487,   rate:0.3490, parcela:()=>658.07},
+    {upTo:4753,   rate:0.3836, parcela:()=>813.33},
+    {upTo:6687,   rate:0.3969, parcela:()=>876.55},
+    {upTo:20468,  rate:0.4495, parcela:()=>1228.29},
+    {upTo:Infinity,rate:0.4717,parcela:()=>1682.68},
+  ],
+  depAdd: 0
+};
+const TABLE_V = { // não casado, com um ou mais dependentes — deficiência
+  brackets: [
+    {upTo:1938,   rate:0,      parcela:()=>0},
+    {upTo:2063,   rate:0.2132, parcela:()=>413.19},
+    {upTo:2854,   rate:0.3110, parcela:()=>614.96},
+    {upTo:4504,   rate:0.3490, parcela:()=>723.42},
+    {upTo:6826,   rate:0.3836, parcela:()=>879.26},
+    {upTo:7048,   rate:0.3969, parcela:()=>970.05},
+    {upTo:20468,  rate:0.4495, parcela:()=>1340.78},
+    {upTo:Infinity,rate:0.4717,parcela:()=>1795.17},
+  ],
+  depAdd: 42.86
+};
+const TABLE_VI = { // casado dois titulares, com um ou mais dependentes — deficiência
+  brackets: [
+    {upTo:1668,   rate:0,      parcela:()=>0},
+    {upTo:2068,   rate:0.2049, parcela:()=>341.78},
+    {upTo:2497,   rate:0.2410, parcela:()=>416.44},
+    {upTo:3107,   rate:0.3110, parcela:()=>591.23},
+    {upTo:4504,   rate:0.3490, parcela:()=>709.30},
+    {upTo:6826,   rate:0.3836, parcela:()=>865.14},
+    {upTo:7048,   rate:0.3969, parcela:()=>955.93},
+    {upTo:20468,  rate:0.4495, parcela:()=>1326.66},
+    {upTo:Infinity,rate:0.4717,parcela:()=>1781.05},
+  ],
+  depAdd: 21.43
+};
+const TABLE_VII = { // casado único titular — deficiência
+  brackets: [
+    {upTo:2325,   rate:0,      parcela:()=>0},
+    {upTo:3494,   rate:0.2277, parcela:()=>529.41},
+    {upTo:3761,   rate:0.2570, parcela:()=>631.79},
+    {upTo:6687,   rate:0.2881, parcela:()=>748.76},
+    {upTo:20468,  rate:0.4244, parcela:()=>1660.20},
+    {upTo:Infinity,rate:0.4717,parcela:()=>2628.34},
+  ],
+  depAdd: 42.86
+};
+
+const SS_RATE_EMPLOYEE = 0.11;
+const SS_RATE_EMPLOYER = 0.2375;
+
+// IRS Jovem — 2026
+const IAS_2026 = 537.13;
+const JOVEM_ANNUAL_CAP = 55 * IAS_2026; // 29 542,15 €
+
+// Ajudas de custo — limites isentos 2026 (Decreto-Lei n.º 1/2025 / DL 29-A/2026)
+const PERDIEM_LIMITS = {
+  national:      { general: 65.89,  manager: 72.65  },
+  international: { general: 148.91, manager: 167.07 }
+};
+const KM_EXEMPT_RATE = 0.40;
+
+document.getElementById('jovem-enabled').addEventListener('change', function(){
+  document.getElementById('jovem-fields').style.display = this.checked ? 'block' : 'none';
+  recalc();
+});
+document.getElementById('jovem-age').addEventListener('input', function(){
+  document.getElementById('jovem-warning').style.display = parseInt(this.value,10) > 35 ? 'block' : 'none';
+  recalc();
+});
+document.getElementById('jovem-tier').addEventListener('change', recalc);
+
+function pickTable(marital, dependents, disabled){
+  if(disabled){
+    if(marital === 'married_one_income') return {table:TABLE_VII, name:'Tabela VII'};
+    if(marital === 'married_two_incomes') return dependents>0 ? {table:TABLE_VI,name:'Tabela VI'} : {table:TABLE_IV,name:'Tabela IV'};
+    return dependents>0 ? {table:TABLE_V,name:'Tabela V'} : {table:TABLE_IV,name:'Tabela IV'};
+  }
+  if(marital === 'married_one_income') return {table:TABLE_III, name:'Tabela III'};
+  if(marital === 'married_two_incomes') return {table:TABLE_I, name:'Tabela I'};
+  // single
+  return dependents>0 ? {table:TABLE_II,name:'Tabela II'} : {table:TABLE_I,name:'Tabela I'};
+}
+
+function calcIRS(table, R, dependents){
+  if(R<=0) return 0;
+  let bracket = table.brackets.find(b => R <= b.upTo);
+  if(!bracket) bracket = table.brackets[table.brackets.length-1];
+  let rate = bracket.rate;
+  if(dependents>=3 && table.depAdd>0) rate = rate - 0.01;
+  const parcela = bracket.parcela(R);
+  const depAdd = (table.depAdd||0) * dependents;
+  const tax = R*rate - parcela - depAdd;
+  return Math.max(0, tax);
+}
+
+const fmt = v => v.toLocaleString('pt-PT', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
+
+let paymentsPerYear = 14;
+
+document.querySelectorAll('#payments-toggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#payments-toggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    paymentsPerYear = parseInt(btn.dataset.val,10);
+    recalc();
+  });
+});
+
+['gross','dependents','meal-daily','workdays','perdiem-daily','perdiem-days','km-rate','km-count'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', recalc);
+});
+['marital','meal-method','perdiem-scope','perdiem-role'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', recalc);
+});
+document.getElementById('disabled').addEventListener('change', recalc);
+
+function applyJovem(normalIRS, taxableBase, jovemEnabled, exemptFraction){
+  if(!jovemEnabled || taxableBase<=0) return {finalIRS: normalIRS, reduction: 0};
+  const monthlyCap = JOVEM_ANNUAL_CAP / paymentsPerYear;
+  const exemptibleAmount = Math.min(taxableBase, monthlyCap);
+  const effectiveRate = normalIRS / taxableBase;
+  const reduction = effectiveRate * exemptibleAmount * exemptFraction;
+  const finalIRS = Math.max(0, normalIRS - reduction);
+  return {finalIRS, reduction};
+}
+
+function recalc(){
+  const gross = parseFloat(document.getElementById('gross').value) || 0;
+  const dependents = parseInt(document.getElementById('dependents').value,10) || 0;
+  const disabled = document.getElementById('disabled').checked;
+  const marital = document.getElementById('marital').value;
+  const mealDaily = parseFloat(document.getElementById('meal-daily').value) || 0;
+  const workdays = parseFloat(document.getElementById('workdays').value) || 0;
+  const mealMethod = document.getElementById('meal-method').value;
+
+  const jovemEnabled = document.getElementById('jovem-enabled').checked;
+  const jovemFraction = parseFloat(document.getElementById('jovem-tier').value) || 0;
+
+  const perdiemDaily = parseFloat(document.getElementById('perdiem-daily').value) || 0;
+  const perdiemDays = parseFloat(document.getElementById('perdiem-days').value) || 0;
+  const perdiemScope = document.getElementById('perdiem-scope').value;
+  const perdiemRole = document.getElementById('perdiem-role').value;
+
+  const kmRate = parseFloat(document.getElementById('km-rate').value) || 0;
+  const kmCount = parseFloat(document.getElementById('km-count').value) || 0;
+
+  const {table, name} = pickTable(marital, dependents, disabled);
+
+  // meal allowance
+  const mealMonthly = mealDaily * workdays;
+  const mealExemptDaily = mealMethod === 'card' ? 10.46 : 6.15;
+  const mealTaxableMonthly = Math.max(0, mealMonthly - mealExemptDaily * workdays);
+
+  // ajudas de custo (per diem)
+  const perdiemExemptDaily = PERDIEM_LIMITS[perdiemScope][perdiemRole];
+  const perdiemMonthly = perdiemDaily * perdiemDays;
+  const perdiemTaxableMonthly = Math.max(0, (perdiemDaily - perdiemExemptDaily)) * perdiemDays;
+
+  // km viatura própria
+  const kmMonthly = kmRate * kmCount;
+  const kmTaxableMonthly = Math.max(0, (kmRate - KM_EXEMPT_RATE)) * kmCount;
+
+  const extraCash = mealMonthly + perdiemMonthly + kmMonthly;
+  const taxableBase = gross + mealTaxableMonthly + perdiemTaxableMonthly + kmTaxableMonthly;
+
+  const normalIRS = calcIRS(table, taxableBase, dependents);
+  const {finalIRS: irs, reduction: jovemReduction} = applyJovem(normalIRS, taxableBase, jovemEnabled, jovemFraction);
+  const ss = SS_RATE_EMPLOYEE * taxableBase;
+
+  const netWithSS = gross + extraCash - irs - ss;
+  const netWithoutSS = gross + extraCash - irs;
+
+  // subsídios de férias / Natal (14 pagamentos) — tratados como pagamento mensal autónomo igual ao bruto base
+  let subsidyNetWithSS = 0, subsidyNetWithoutSS = 0;
+  if(paymentsPerYear === 14){
+    const irsSubNormal = calcIRS(table, gross, dependents);
+    const {finalIRS: irsSub} = applyJovem(irsSubNormal, gross, jovemEnabled, jovemFraction);
+    const ssSub = SS_RATE_EMPLOYEE * gross;
+    subsidyNetWithSS = gross - irsSub - ssSub;
+    subsidyNetWithoutSS = gross - irsSub;
+  }
+
+  const annualWithSS = paymentsPerYear === 14
+    ? netWithSS*12 + subsidyNetWithSS*2
+    : netWithSS*12;
+  const annualWithoutSS = paymentsPerYear === 14
+    ? netWithoutSS*12 + subsidyNetWithoutSS*2
+    : netWithoutSS*12;
+
+  const employerCost = gross + extraCash + SS_RATE_EMPLOYER * taxableBase;
+
+  // ---- render ----
+  document.getElementById('out-gross').textContent = fmt(gross);
+  document.getElementById('out-meal').textContent = mealMonthly>0
+    ? fmt(mealMonthly) + (mealTaxableMonthly>0 ? '  (tributável: ' + fmt(mealTaxableMonthly) + ')' : '  (isento)')
+    : '—';
+
+  document.getElementById('row-perdiem').style.display = perdiemMonthly>0 ? 'flex' : 'none';
+  document.getElementById('out-perdiem').textContent = perdiemMonthly>0
+    ? fmt(perdiemMonthly) + (perdiemTaxableMonthly>0 ? '  (tributável: ' + fmt(perdiemTaxableMonthly) + ')' : '  (isento)')
+    : '—';
+
+  document.getElementById('row-km').style.display = kmMonthly>0 ? 'flex' : 'none';
+  document.getElementById('out-km').textContent = kmMonthly>0
+    ? fmt(kmMonthly) + (kmTaxableMonthly>0 ? '  (tributável: ' + fmt(kmTaxableMonthly) + ')' : '  (isento)')
+    : '—';
+
+  document.getElementById('out-base').textContent = fmt(taxableBase);
+  document.getElementById('out-ss').textContent = '− ' + fmt(ss);
+
+  document.getElementById('row-irs-normal').style.display = jovemEnabled ? 'flex' : 'none';
+  document.getElementById('irs-normal-note').textContent = '(sem IRS Jovem)';
+  document.getElementById('out-irs-normal').textContent = '− ' + fmt(normalIRS);
+
+  document.getElementById('row-jovem').style.display = jovemEnabled ? 'flex' : 'none';
+  document.getElementById('out-jovem-reduction').textContent = '+ ' + fmt(jovemReduction);
+
+  document.getElementById('out-irs').textContent = '− ' + fmt(irs);
+  document.getElementById('out-net-with').textContent = fmt(netWithSS);
+  document.getElementById('out-tabletag').textContent = name
+    + (disabled ? ' · deficiência' : '')
+    + (dependents>=3 && table.depAdd>0 ? ' · −1pp (3+ dependentes)' : '')
+    + (jovemEnabled ? ' · IRS Jovem ' + Math.round(jovemFraction*100) + '%' : '');
+
+  document.getElementById('cmp-with').textContent = fmt(netWithSS);
+  document.getElementById('cmp-without').textContent = fmt(netWithoutSS);
+
+  document.getElementById('out-annual-label').textContent =
+    '(' + paymentsPerYear + ' pagamentos, com SS)';
+  document.getElementById('out-annual').textContent = fmt(annualWithSS);
+
+  document.getElementById('out-employer').textContent = fmt(employerCost);
+}
+
+recalc();
+</script>
+</body>
+</html>
